@@ -149,3 +149,158 @@ fig1.update_layout(
 
 # Show the figure
 st.plotly_chart(fig1)
+
+#######################################################
+
+
+health_vars = ['Children with health insurance %',
+       'Children diagnosed with any chronic condition %',
+       'Children receiving treatment for chronic condition %',
+       'Children with access to dental care %']
+
+for var in health_vars:
+    original_var = var.replace(' %', '')
+    reg_post_covid_df_2[var] = reg_post_covid_df_2[original_var] / reg_post_covid_df_2['Total Enrollment'] * 100
+
+dropout_columns = ['HS dropouts who did not re-enroll', 'EHS dropouts who did not re-enroll']
+reg_post_covid_df_2['Cumulative Dropout Rate (%)'] = reg_post_covid_df_2[dropout_columns].sum(axis=1) / reg_post_covid_df_2['Total Enrollment'] * 100
+
+# Define a color for each region (you can choose your own colors)
+region_colors = {
+    'Region 1': 'blue', 'Region 2': 'green', 'Region 3': 'red', 'Region 4': 'cyan',
+    'Region 5': 'magenta', 'Region 6': 'yellow', 'Region 7': 'black', 'Region 8': 'purple',
+    'Region 9': 'orange', 'Region 10': 'grey'
+}
+
+# Apply the color mapping to your DataFrame
+reg_post_covid_df_2['Color'] = reg_post_covid_df_2['Region'].map(region_colors)
+
+import plotly.graph_objects as go
+
+# Ensure the DataFrame `reg_post_covid_df_1` has the percentage columns
+# ...
+
+# Initialize the figure with the first health variable
+initial_var = health_vars[0]
+fig2 = go.Figure()
+
+# Create and add the scatter plot for the initial variable
+fig2.add_trace(
+    go.Scatter(
+        x=reg_post_covid_df_2[initial_var],
+        y=reg_post_covid_df_2['Cumulative Dropout Rate (%)'],
+        mode='markers',
+        marker=dict(color=reg_post_covid_df_2['Color']),
+        text=reg_post_covid_df_2.apply(lambda row: f"{row['Region']} {row['Year']}", axis=1),
+        hoverinfo='text'
+    )
+)
+
+# Create the buttons for the update menu, using the correct column names
+buttons2 = [
+    dict(
+        args=[
+            {"x": [reg_post_covid_df_2[var].tolist()]},  # Updates the x-axis data
+            {"xaxis": {"title": var}}  # Updates the x-axis title
+        ],
+        label=var,
+        method='update'
+    )
+    for var in health_vars
+]
+
+
+# Update the layout to include dropdown buttons
+fig2.update_layout(
+    updatemenus=[
+        {
+            "buttons": buttons2,
+            "direction": "down",
+            "pad": {"r": 10, "t": 10},
+            "showactive": True,
+            "x": 0.1,
+            "xanchor": "left",
+            "y": 1.1,
+            "yanchor": "top"
+        }
+    ],
+    title='Cumulative Dropout Rate vs. Health Metrics (%) by Region',
+    xaxis=dict(title=initial_var),  # Set initial x-axis title
+    yaxis=dict(title='Cumulative Dropout Rate (%)')  # Set y-axis title
+)
+
+# Show the figure
+st.plotly_chart(fig2)
+
+###############################################
+
+import plotly.graph_objects as go
+# Assuming reg_post_covid_df_2 has the necessary data prepared, including the 'Color' column
+
+# Convert features into percentages of Total Enrollment
+features = [
+    'HS dropouts who did not re-enroll', 'HS dropouts within 45 days', 'Predicted HS to kindergarten',
+    'EHS dropouts who did not re-enroll', 'EHS dropouts within 45 days',
+    'aged out of Early Head Start', 'EHS to HS',
+    'EHS to nonHS early childhood program', 'EHS aged out to no further early child education'
+]
+for feature in features:
+    percentage_feature_name = f"{feature} (% of Total Enrollment)"
+    reg_post_covid_df_2[percentage_feature_name] = (reg_post_covid_df_2[feature] / reg_post_covid_df_2['Total Enrollment']) * 100
+
+# Initialize the figure
+fig3 = go.Figure()
+
+# Add a trace for the initial feature for each region
+percentage_features = [f"{feature} (% of Total Enrollment)" for feature in features]
+initial_feature = percentage_features[0]
+
+# Assuming 'Region' and 'Year' are appropriate columns in your DataFrame
+for region in reg_post_covid_df_2['Region'].unique():
+    df_filtered = reg_post_covid_df_2[reg_post_covid_df_2['Region'] == region]
+    fig3.add_trace(go.Scatter(
+        x=df_filtered['Year'],
+        y=df_filtered[initial_feature],
+        mode='lines+markers',
+        name=region,
+        text=region,  # Display 'Region' on hover
+        hoverinfo='text+y+x'
+    ))
+
+# Create dropdown buttons for selecting features
+dropdown_buttons = [
+    dict(
+        args=[
+            {"y": [reg_post_covid_df_2[reg_post_covid_df_2['Region'] == region][feature].values.tolist() for region in reg_post_covid_df_2['Region'].unique()],
+             "x": [reg_post_covid_df_2[reg_post_covid_df_2['Region'] == region]['Year'].values.tolist() for region in reg_post_covid_df_2['Region'].unique()]},
+            {"xaxis": {"title": feature}, "yaxis": {"title": "Percentage of Total Enrollment"}}
+        ],
+        label=feature,
+        method="update"
+    )
+    for feature in percentage_features
+]
+
+# Update the layout to include dropdown buttons
+fig3.update_layout(
+    updatemenus=[
+        {
+            "buttons": dropdown_buttons,
+            "direction": "down",
+            "pad": {"r": 10, "t": 10},
+            "showactive": True,
+            "x": 0.1,
+            "xanchor": "left",
+            "y": 1.15,
+            "yanchor": "top"
+        }
+    ],
+    title="Completion and Attrition Rates by Region and Year",
+    xaxis_title="Year",
+    yaxis_title="Percentage of Total Enrollment"
+)
+
+# Show the figure
+st.plotly_chart(fig3)
+
+###############################################
