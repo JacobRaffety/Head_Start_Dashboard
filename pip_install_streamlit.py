@@ -2,7 +2,7 @@ import streamlit as st
 import pickle
 import pandas as pd
 import plotly.express as px
-#import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 # st.title("Test test please work I need this")
 
@@ -34,8 +34,7 @@ region_to_states = {
     'Region 9': ['CA', 'NV', 'AZ', 'HI'],
     'Region 10': ['AK', 'WA', 'OR', 'ID']
 }
-#I'm creating a new dataframe called df_states to use for plotting.
-state_to_region = {state: region for region, states in region_to_states.items() for state in states}
+
 
 df_states = pd.DataFrame([(state, region) for region, states in region_to_states.items() for state in states], columns=['State', 'Region'])
 df_states['Year'] = 2021
@@ -100,7 +99,26 @@ st.plotly_chart(fig)
 # Initialize the figure
 
 
+
 ############################################
+
+region_mapping = {
+    'Region 1': 'New England',
+    'Region 2': 'NY/NJ',
+    'Region 3': 'Mid Atlantic',
+    'Region 4': 'Southeast',
+    'Region 5': 'Upper Midwest',
+    'Region 6': 'Texas & Borders',
+    'Region 7': 'Great Plains',
+    'Region 8': 'Mountain States',
+    'Region 9': 'Southwest',
+    'Region 10': 'Pacific Northwest'
+}
+
+reg_post_covid_df_2['Region'] = reg_post_covid_df_2['Region'].map(region_mapping)
+#I'm creating a new dataframe called df_states to use for plotting.
+state_to_region = {state: region for region, states in region_to_states.items() for state in states}
+
 
 fig1 = go.Figure()
 # Feature list for the dropdown
@@ -150,6 +168,7 @@ fig1.update_layout(
 # Show the figure
 st.plotly_chart(fig1)
 
+
 #######################################################
 
 
@@ -167,9 +186,9 @@ reg_post_covid_df_2['Cumulative Dropout Rate (%)'] = reg_post_covid_df_2[dropout
 
 # Define a color for each region (you can choose your own colors)
 region_colors = {
-    'Region 1': 'blue', 'Region 2': 'green', 'Region 3': 'red', 'Region 4': 'cyan',
-    'Region 5': 'magenta', 'Region 6': 'yellow', 'Region 7': 'black', 'Region 8': 'purple',
-    'Region 9': 'orange', 'Region 10': 'grey'
+    'New England': 'blue', 'NY/NJ': 'green', 'Mid Atlantic': 'red', 'Southeast': 'cyan',
+    'Upper Midwest': 'magenta', 'Texas & Borders': 'yellow', 'Great Plains': 'black', 'Mountain States': 'purple',
+    'Southwest': 'orange', 'Pacific Northwest': 'grey'
 }
 
 # Apply the color mapping to your DataFrame
@@ -304,3 +323,13 @@ fig3.update_layout(
 st.plotly_chart(fig3)
 
 ###############################################
+
+
+
+
+
+
+
+
+
+
