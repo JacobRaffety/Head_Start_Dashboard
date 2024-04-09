@@ -89,7 +89,7 @@ fig.update_layout(
     }]
 )
 
-st.title("HeadStart Regional Data Visualized")
+st.title("Head Start Regional Data Visualized")
 
 # Use Streamlit to display the Plotly figure
 st.plotly_chart(fig)
