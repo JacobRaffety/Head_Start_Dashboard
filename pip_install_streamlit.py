@@ -100,7 +100,7 @@ st.plotly_chart(fig)
 
 
 
-############################################
+# ############################################
 
 region_mapping = {
     'Region 1': 'New England',
@@ -116,57 +116,57 @@ region_mapping = {
 }
 
 reg_post_covid_df_2['Region'] = reg_post_covid_df_2['Region'].map(region_mapping)
-#I'm creating a new dataframe called df_states to use for plotting.
-state_to_region = {state: region for region, states in region_to_states.items() for state in states}
+# #I'm creating a new dataframe called df_states to use for plotting.
+# state_to_region = {state: region for region, states in region_to_states.items() for state in states}
 
 
-fig1 = go.Figure()
-# Feature list for the dropdown
-features = [
-    'HS dropouts who did not re-enroll', 'HS dropouts within 45 days', 'Predicted HS to kindergarten',
-    'EHS dropouts who did not re-enroll', 'EHS dropouts within 45 days',
-    'aged out of Early Head Start', 'EHS to HS',
-    'EHS to nonHS early childhood program', 'EHS aged out to no further early child education'
-]
+# fig1 = go.Figure()
+# # Feature list for the dropdown
+# features = [
+#     'HS dropouts who did not re-enroll', 'HS dropouts within 45 days', 'Predicted HS to kindergarten',
+#     'EHS dropouts who did not re-enroll', 'EHS dropouts within 45 days',
+#     'aged out of Early Head Start', 'EHS to HS',
+#     'EHS to nonHS early childhood program', 'EHS aged out to no further early child education'
+# ]
 
-# Initial plot - using the first feature as an example
-for region in reg_post_covid_df_1['Region'].unique():
-    df_filtered = reg_post_covid_df_1[reg_post_covid_df_1['Region'] == region]
-    fig1.add_trace(go.Scatter(
-        x=df_filtered['Year'],
-        y=df_filtered[features[0]],  # Initial feature
-        mode='lines+markers',
-        name=region
-    ))
+# # Initial plot - using the first feature as an example
+# for region in reg_post_covid_df_1['Region'].unique():
+#     df_filtered = reg_post_covid_df_1[reg_post_covid_df_1['Region'] == region]
+#     fig1.add_trace(go.Scatter(
+#         x=df_filtered['Year'],
+#         y=df_filtered[features[0]],  # Initial feature
+#         mode='lines+markers',
+#         name=region
+#     ))
 
-# Dropdown buttons for selecting features
-buttons1 = [
-    {
-        "label": feature,
-        "method": "update",
-        "args": [{"y": [
-                    reg_post_covid_df_1[reg_post_covid_df_1['Region'] == region][feature]
-                    for region in reg_post_covid_df_1['Region'].unique()
-                 ],
-                  "x": [
-                    reg_post_covid_df_1[reg_post_covid_df_1['Region'] == region]['Year']
-                    for region in reg_post_covid_df_1['Region'].unique()
-                 ]}]
-    } for feature in features
-]
+# # Dropdown buttons for selecting features
+# buttons1 = [
+#     {
+#         "label": feature,
+#         "method": "update",
+#         "args": [{"y": [
+#                     reg_post_covid_df_1[reg_post_covid_df_1['Region'] == region][feature]
+#                     for region in reg_post_covid_df_1['Region'].unique()
+#                  ],
+#                   "x": [
+#                     reg_post_covid_df_1[reg_post_covid_df_1['Region'] == region]['Year']
+#                     for region in reg_post_covid_df_1['Region'].unique()
+#                  ]}]
+#     } for feature in features
+# ]
 
-# Add dropdowns to the figure
-fig1.update_layout(
-    updatemenus=[{
-        "buttons": buttons1,
-        "direction": "down",
-        "showactive": True,
-    }],
-    title_text="Yearly Metrics by Region"
-)
+# # Add dropdowns to the figure
+# fig1.update_layout(
+#     updatemenus=[{
+#         "buttons": buttons1,
+#         "direction": "down",
+#         "showactive": True,
+#     }],
+#     title_text="Yearly Metrics by Region"
+# )
 
-# Show the figure
-st.plotly_chart(fig1)
+# # Show the figure
+# st.plotly_chart(fig1)
 
 
 #######################################################
@@ -325,8 +325,54 @@ st.plotly_chart(fig3)
 ###############################################
 
 
+import plotly.graph_objects as go
+reg_post_covid_df_2['Employed Parent Ratio'] = reg_post_covid_df_2['At least one parent is employed families'] / reg_post_covid_df_2['Total number of families']
+reg_post_covid_df_2['Two Parent Ratio'] = reg_post_covid_df_2['Total two parent families'] / reg_post_covid_df_2['Total number of families']
+reg_post_covid_df_2['Program Participation'] =reg_post_covid_df_2['Families that attended a HS program'] / reg_post_covid_df_2['Total number of families']
+# Initialize the figure
+fig4 = go.Figure()
+# Scatter plot for Single Parent Ratio
+fig4.add_trace(go.Scatter(
+    x=reg_post_covid_df_2['Employed Parent Ratio'],
+    y=reg_post_covid_df_2['Cumulative Dropout Rate (%)'],
+    mode='markers',
+    name='Employed Parent Ratio',
+    text=reg_post_covid_df_2['Region'],  # Assuming you have a Region column for reference
+    marker=dict(color='RoyalBlue', size=10),
+    hoverinfo='text+y+x'
+))
+# Scatter plot for Two Parent Ratio
+fig4.add_trace(go.Scatter(
+    x=reg_post_covid_df_2['Two Parent Ratio'],
+    y=reg_post_covid_df_2['Cumulative Dropout Rate (%)'],
+    mode='markers',
+    name='Two Parent Ratio',
+    text=reg_post_covid_df_2['Region'],  # Assuming you have a Region column for reference
+    marker=dict(color='Crimson', size=10),
+    hoverinfo='text+y+x'
+))
+fig4.add_trace(go.Scatter(
+    x=reg_post_covid_df_2['Program Participation'],
+    y=reg_post_covid_df_2['Cumulative Dropout Rate (%)'],
+    mode='markers',
+    name='Parental Participation Ratio',
+    text=reg_post_covid_df_2['Region'],  # Assuming you have a Region column for reference
+    marker=dict(color='Green', size=10),
+    hoverinfo='text+y+x'
+))
+# Update layout with titles and axes labels
+fig.update_layout(
+    title='Cumulative Dropout Rate (%) vs. Family Statistics',
+    xaxis_title='Family Statistics',
+    yaxis_title='Cumulative Dropout Rate (%)',
+    legend_title='Family Metrics',
+    hovermode='closest'
+)
+# Show the figure
+st.plotly_chart(fig4)
 
 
+#######################################################
 
 
 
