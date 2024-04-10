@@ -361,7 +361,7 @@ fig4.add_trace(go.Scatter(
     hoverinfo='text+y+x'
 ))
 # Update layout with titles and axes labels
-fig.update_layout(
+fig4.update_layout(
     title='Cumulative Dropout Rate (%) vs. Family Statistics',
     xaxis_title='Family Statistics',
     yaxis_title='Cumulative Dropout Rate (%)',
