@@ -182,7 +182,11 @@ for var in health_vars:
     reg_post_covid_df_2[var] = reg_post_covid_df_2[original_var] / reg_post_covid_df_2['Total Enrollment'] * 100
 
 dropout_columns = ['HS dropouts who did not re-enroll', 'EHS dropouts who did not re-enroll']
-reg_post_covid_df_2['Cumulative Dropout Rate (%)'] = reg_post_covid_df_2[dropout_columns].sum(axis=1) / reg_post_covid_df_2['Total Enrollment'] * 100
+reg_post_covid_df_2['Cumulative Retention Rate (%)'] = (1-(reg_post_covid_df_2[dropout_columns].sum(axis=1) / reg_post_covid_df_2['Total Enrollment'] ))* 100
+
+
+
+
 
 # Define a color for each region (you can choose your own colors)
 region_colors = {
@@ -190,6 +194,7 @@ region_colors = {
     'Upper Midwest': 'magenta', 'Texas & Borders': 'yellow', 'Great Plains': 'black', 'Mountain States': 'purple',
     'Southwest': 'orange', 'Pacific Northwest': 'grey'
 }
+
 
 # Apply the color mapping to your DataFrame
 reg_post_covid_df_2['Color'] = reg_post_covid_df_2['Region'].map(region_colors)
@@ -203,24 +208,28 @@ import plotly.graph_objects as go
 initial_var = health_vars[0]
 fig2 = go.Figure()
 
-# Create and add the scatter plot for the initial variable
-fig2.add_trace(
-    go.Scatter(
-        x=reg_post_covid_df_2[initial_var],
-        y=reg_post_covid_df_2['Cumulative Dropout Rate (%)'],
-        mode='markers',
-        marker=dict(color=reg_post_covid_df_2['Color']),
-        text=reg_post_covid_df_2.apply(lambda row: f"{row['Region']} {row['Year']}", axis=1),
-        hoverinfo='text'
+
+# Create a scatter plot for each region
+for region, color in region_colors.items():
+    df_filtered = reg_post_covid_df_2[reg_post_covid_df_2['Region'] == region]
+    fig2.add_trace(
+        go.Scatter(
+            x=df_filtered['Cumulative Retention Rate (%)'],
+            y=df_filtered[initial_var],
+            mode='markers',
+            marker=dict(color=color),
+            name=region,  # This name is used in the legend
+            text=df_filtered.apply(lambda row: f"{row['Region']} {row['Year']}", axis=1),
+            hoverinfo='text'
+        )
     )
-)
 
 # Create the buttons for the update menu, using the correct column names
 buttons2 = [
     dict(
         args=[
-            {"x": [reg_post_covid_df_2[var].tolist()]},  # Updates the x-axis data
-            {"xaxis": {"title": var}}  # Updates the x-axis title
+            {"y": [reg_post_covid_df_2[var].tolist()]},  # Updates the x-axis data
+            {"yaxis": {"title": var}}  # Updates the x-axis title
         ],
         label=var,
         method='update'
@@ -243,9 +252,10 @@ fig2.update_layout(
             "yanchor": "top"
         }
     ],
-    title='Cumulative Dropout Rate vs. Health Metrics (%) by Region',
-    xaxis=dict(title=initial_var),  # Set initial x-axis title
-    yaxis=dict(title='Cumulative Dropout Rate (%)')  # Set y-axis title
+    title='Cumulative Retention Rate vs. Health Metrics (%) by Region',
+    xaxis=dict(title='Cumulative Retention Rate (%)'),  # Set initial x-axis title
+    yaxis=dict(title=initial_var),  # Set y-axis title
+    legend_title='Regions'
 )
 
 # Show the figure
@@ -333,8 +343,8 @@ reg_post_covid_df_2['Program Participation'] =reg_post_covid_df_2['Families that
 fig4 = go.Figure()
 # Scatter plot for Single Parent Ratio
 fig4.add_trace(go.Scatter(
-    x=reg_post_covid_df_2['Employed Parent Ratio'],
-    y=reg_post_covid_df_2['Cumulative Dropout Rate (%)'],
+    y=reg_post_covid_df_2['Employed Parent Ratio'],
+    x=reg_post_covid_df_2['Cumulative Retention Rate (%)'],
     mode='markers',
     name='Employed Parent Ratio',
     text=reg_post_covid_df_2['Region'],  # Assuming you have a Region column for reference
@@ -343,8 +353,8 @@ fig4.add_trace(go.Scatter(
 ))
 # Scatter plot for Two Parent Ratio
 fig4.add_trace(go.Scatter(
-    x=reg_post_covid_df_2['Two Parent Ratio'],
-    y=reg_post_covid_df_2['Cumulative Dropout Rate (%)'],
+    y=reg_post_covid_df_2['Two Parent Ratio'],
+    x=reg_post_covid_df_2['Cumulative Retention Rate (%)'],
     mode='markers',
     name='Two Parent Ratio',
     text=reg_post_covid_df_2['Region'],  # Assuming you have a Region column for reference
@@ -352,8 +362,8 @@ fig4.add_trace(go.Scatter(
     hoverinfo='text+y+x'
 ))
 fig4.add_trace(go.Scatter(
-    x=reg_post_covid_df_2['Program Participation'],
-    y=reg_post_covid_df_2['Cumulative Dropout Rate (%)'],
+    y=reg_post_covid_df_2['Program Participation'],
+    x=reg_post_covid_df_2['Cumulative Retention Rate (%)'],
     mode='markers',
     name='Parental Participation Ratio',
     text=reg_post_covid_df_2['Region'],  # Assuming you have a Region column for reference
@@ -362,9 +372,9 @@ fig4.add_trace(go.Scatter(
 ))
 # Update layout with titles and axes labels
 fig4.update_layout(
-    title='Cumulative Dropout Rate (%) vs. Family Characteristics Ratio',
-    xaxis_title='Family Characteristics Ratio',
-    yaxis_title='Cumulative Dropout Rate (%)',
+    title='Cumulative Retention Rate (%) vs. Family Characteristics Ratio',
+    yaxis_title='Family Characteristics Ratio',
+    xaxis_title='Cumulative Retention Rate (%)',
     legend_title='Family Metrics',
     hovermode='closest'
 )
